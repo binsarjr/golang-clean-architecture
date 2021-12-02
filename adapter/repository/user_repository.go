@@ -10,7 +10,8 @@ import (
 )
 
 type UserRepository interface {
-	FindUserUsername(username string) (user entity.UserEntity, err error)
+	FindUserByUsername(username string) (user entity.UserEntity, err error)
+	FindUserByUsernameOrEmail(username string, email string) (user entity.UserEntity, err error)
 	Insert(user *entity.UserEntity)
 }
 
@@ -24,7 +25,26 @@ type userRepositoryImpl struct {
 	db *pgxpool.Pool
 }
 
-func (repo *userRepositoryImpl) FindUserUsername(username string) (user entity.UserEntity, err error) {
+func (repo *userRepositoryImpl) FindUserByUsernameOrEmail(username string, email string) (user entity.UserEntity, err error) {
+	ctx, cancel := database.NewDatabaseContext()
+	defer cancel()
+
+	rows, err := repo.db.Query(ctx, "SELECT user_id,username,email, password FROM auth.users WHERE username = $1 or email = $2", username, email)
+	exception.PanicIfNeeded(err)
+	defer rows.Close()
+	if rows.Next() {
+		err := rows.Scan(&user.UserId, &user.Username, &user.Email, &user.Password)
+		exception.PanicIfNeeded(err)
+		return user, nil
+	} else {
+		return user, exception.ErrResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "pengguna tidak ditemukan",
+		}
+	}
+}
+
+func (repo *userRepositoryImpl) FindUserByUsername(username string) (user entity.UserEntity, err error) {
 	ctx, cancel := database.NewDatabaseContext()
 	defer cancel()
 

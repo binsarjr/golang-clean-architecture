@@ -35,6 +35,7 @@ func (a *AuthSignUpRequest) Bind(r *http.Request) error {
 	if a.Username == "" {
 		return exception.NewMissingRequired("username")
 	}
+
 	if a.Email == "" {
 		return exception.NewMissingRequired("email")
 	}

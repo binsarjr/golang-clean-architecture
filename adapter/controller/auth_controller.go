@@ -3,7 +3,7 @@ package controller
 import (
 	"giapps/newapp/adapter/service"
 	"giapps/newapp/domain/model"
-	"giapps/newapp/exception"
+	"giapps/newapp/validation"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -28,10 +28,7 @@ func (controller *AuthController) Route(r chi.Router) {
 
 func (controller *AuthController) SignIn(w http.ResponseWriter, r *http.Request) {
 	request := &model.AuthSignInRequest{}
-	if err := render.Bind(r, request); err != nil {
-		render.Render(w, r, &exception.ErrResponse{Code: http.StatusUnprocessableEntity, Message: err.Error()})
-		return
-	}
+	validation.NewValidation(w, r, request)
 
 	response := controller.AuthService.SignIn(*request)
 
@@ -39,13 +36,10 @@ func (controller *AuthController) SignIn(w http.ResponseWriter, r *http.Request)
 }
 
 func (controller *AuthController) SignUp(w http.ResponseWriter, r *http.Request) {
-	request := model.AuthSignUpRequest{}
-	if err := render.Bind(r, &request); err != nil {
-		render.Render(w, r, &exception.ErrResponse{Code: http.StatusUnprocessableEntity, Message: err.Error()})
-		return
-	}
+	request := &model.AuthSignUpRequest{}
+	validation.NewValidation(w, r, request)
 
-	response := controller.AuthService.SignUp(request)
+	response := controller.AuthService.SignUp(*request)
 
 	render.Status(r, http.StatusCreated)
 	render.Render(w, r, &response)

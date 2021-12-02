@@ -21,6 +21,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -30,7 +31,7 @@ type HTTPServer struct {
 	router        chi.Router
 	configuration config.Config
 	database      *pgxpool.Pool
-	secretKey     string
+	tokenAuth     *jwtauth.JWTAuth
 }
 
 // Start run the application
@@ -43,7 +44,7 @@ func (app *HTTPServer) Start() {
 	userRepository := repository.NewUserRepository(app.database)
 
 	// Setup Services
-	authService := service.NewAuthSerivce(&userRepository, app.secretKey)
+	authService := service.NewAuthSerivce(&userRepository, app.tokenAuth)
 
 	// Setup controller
 	authController := controller.NewAuthController(&authService)
@@ -69,21 +70,21 @@ func NewHTTPServer() *HTTPServer {
 			MaxConns: int32(pool_max),
 			MinConns: int32(pool_min),
 		}),
-		secretKey: configuration.Get("JWT_SECRETKEY"),
+		tokenAuth: jwtauth.New("HS256", []byte(configuration.Get("JWT_SECRETKEY")), nil),
 	}
 }
 
 // HandleNotFound
 func (app *HTTPServer) HandleNotFound() {
 	app.router.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		render.Render(w, r, &model.WebResponse{Code: http.StatusNotFound, Status: "404 not found"})
+		render.Render(w, r, &exception.ErrResponse{Code: http.StatusNotFound, Message: "404 not found"})
 	})
 }
 
 // MethodNotAllowed
 func (app *HTTPServer) HandleMethodNotAllowed() {
 	app.router.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		render.Render(w, r, &model.WebResponse{Code: http.StatusMethodNotAllowed, Status: "method tidak diijinkan"})
+		render.Render(w, r, &exception.ErrResponse{Code: http.StatusMethodNotAllowed, Message: "method tidak diijinkan"})
 	})
 }
 

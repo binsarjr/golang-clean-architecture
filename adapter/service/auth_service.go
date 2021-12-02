@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"giapps/newapp/adapter/repository"
 	"giapps/newapp/domain/entity"
 	"giapps/newapp/domain/model"
@@ -20,12 +21,11 @@ type AuthService interface {
 
 type authServiceImpl struct {
 	UserRepository repository.UserRepository
-	secretKey      string
+	tokenAuth      *jwtauth.JWTAuth
 }
 
 func (service *authServiceImpl) CreateJWTToken(user *entity.UserEntity) (token string) {
-	tokenAuth := jwtauth.New("HS256", []byte(service.secretKey), nil)
-	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{
+	_, tokenString, _ := service.tokenAuth.Encode(map[string]interface{}{
 		"user_id": user.UserId,
 	})
 	return tokenString
@@ -33,7 +33,7 @@ func (service *authServiceImpl) CreateJWTToken(user *entity.UserEntity) (token s
 
 func (service *authServiceImpl) SignIn(request model.AuthSignInRequest) (response model.AuthResponse) {
 
-	userauth, err := service.UserRepository.FindUserUsername(request.Username)
+	userauth, err := service.UserRepository.FindUserByUsername(request.Username)
 	exception.PanicIfNeeded(err)
 
 	err = bcrypt.CompareHashAndPassword([]byte(userauth.Password), []byte(request.Password))
@@ -47,6 +47,21 @@ func (service *authServiceImpl) SignIn(request model.AuthSignInRequest) (respons
 }
 
 func (service *authServiceImpl) SignUp(request model.AuthSignUpRequest) (response model.AuthResponse) {
+	var user entity.UserEntity
+	user, _ = service.UserRepository.FindUserByUsernameOrEmail(request.Username, request.Email)
+	if user != (entity.UserEntity{}) {
+		var field string
+		if user.Username != "" {
+			field = "username"
+		}
+		if user.Email != "" {
+			field = "email"
+		}
+		panic(exception.ErrResponse{
+			Code:    http.StatusUnprocessableEntity,
+			Message: fmt.Sprintf("%s sudah digunakan", field),
+		})
+	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	exception.PanicIfNeeded(err)
@@ -74,9 +89,9 @@ func (service *authServiceImpl) response(token string) (response model.AuthRespo
 	return response
 }
 
-func NewAuthSerivce(repository *repository.UserRepository, secretkey string) AuthService {
+func NewAuthSerivce(repository *repository.UserRepository, tokenAuth *jwtauth.JWTAuth) AuthService {
 	return &authServiceImpl{
 		UserRepository: *repository,
-		secretKey:      secretkey,
+		tokenAuth:      tokenAuth,
 	}
 }
