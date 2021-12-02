@@ -2,10 +2,10 @@ package service
 
 import (
 	"fmt"
-	"giapps/newapp/adapter/repository"
-	"giapps/newapp/domain/entity"
-	"giapps/newapp/domain/model"
-	"giapps/newapp/exception"
+	"giapps/servisin/adapter/repository"
+	"giapps/servisin/domain/entity"
+	"giapps/servisin/domain/model"
+	"giapps/servisin/exception"
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"

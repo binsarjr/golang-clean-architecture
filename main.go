@@ -1,7 +1,7 @@
 package main
 
 import (
-	"giapps/newapp/infrastructure"
+	"giapps/servisin/infrastructure"
 )
 
 func main() {

@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"giapps/newapp/domain/entity"
-	"giapps/newapp/exception"
-	"giapps/newapp/infrastructure/database"
+	"giapps/servisin/domain/entity"
+	"giapps/servisin/exception"
+	"giapps/servisin/infrastructure/database"
 	"net/http"
 
 	"github.com/jackc/pgx/v4/pgxpool"

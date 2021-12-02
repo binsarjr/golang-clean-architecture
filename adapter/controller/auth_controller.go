@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"giapps/newapp/adapter/service"
-	"giapps/newapp/domain/model"
-	"giapps/newapp/validation"
+	"giapps/servisin/adapter/service"
+	"giapps/servisin/domain/model"
+	"giapps/servisin/validation"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"

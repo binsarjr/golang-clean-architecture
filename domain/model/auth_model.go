@@ -1,8 +1,8 @@
 package model
 
 import (
-	"giapps/newapp/domain/vo"
-	"giapps/newapp/exception"
+	"giapps/servisin/domain/vo"
+	"giapps/servisin/exception"
 
 	"net/http"
 )

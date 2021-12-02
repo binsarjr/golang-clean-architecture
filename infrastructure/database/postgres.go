@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"giapps/newapp/exception"
+	"giapps/servisin/exception"
 
 	log "gopkg.in/inconshreveable/log15.v2"
 

@@ -1,4 +1,4 @@
-module giapps/newapp
+module giapps/servisin
 
 go 1.17
 

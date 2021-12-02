@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	"giapps/newapp/exception"
+	"giapps/servisin/exception"
 
 	"github.com/joho/godotenv"
 )
