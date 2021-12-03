@@ -11,13 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"giapps/servisin/adapter/controller"
-	"giapps/servisin/adapter/repository"
-	"giapps/servisin/adapter/service"
 	"giapps/servisin/domain/model"
-	"giapps/servisin/exception"
+	"giapps/servisin/domain/repository"
 	"giapps/servisin/infrastructure/config"
 	"giapps/servisin/infrastructure/database"
+	"giapps/servisin/infrastructure/exception"
+	"giapps/servisin/interfaces"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -43,12 +42,24 @@ func (app *HTTPServer) Start() {
 	// Setup Repository
 	userRepository := repository.NewUserRepository(app.database)
 
-	// Setup Services
-	authService := service.NewAuthSerivce(&userRepository, app.tokenAuth)
+	// Setup Application Services
 
-	// Setup controller
-	authController := controller.NewAuthController(&authService)
-	authController.Route(app.router)
+	// Setup Interface
+	authInterfaces := interfaces.NewAuthenticate(&userRepository, app.tokenAuth)
+
+	app.router.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verify(app.tokenAuth))
+
+		// Handle valid / invalid tokens. In this example, we use
+		// the provided authenticator middleware, but you can write your
+		// own very easily, look at the Authenticator method in jwtauth.go
+		// and tweak it, its not scary.
+		r.Use(jwtauth.Authenticator)
+	})
+
+	// authentication routes
+	app.router.Post("/login", authInterfaces.Login)
+	app.router.Post("/register", authInterfaces.Register)
 
 	app.Serve(app.configuration.Get("APP_PORT"))
 }

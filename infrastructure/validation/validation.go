@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"giapps/servisin/exception"
+	"giapps/servisin/infrastructure/exception"
 	"net/http"
 
 	"github.com/go-chi/render"

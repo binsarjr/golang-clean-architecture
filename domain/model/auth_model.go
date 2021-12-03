@@ -2,17 +2,17 @@ package model
 
 import (
 	"giapps/servisin/domain/vo"
-	"giapps/servisin/exception"
+	"giapps/servisin/infrastructure/exception"
 
 	"net/http"
 )
 
-type AuthSignInRequest struct {
+type AuthLoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func (a *AuthSignInRequest) Bind(r *http.Request) error {
+func (a *AuthLoginRequest) Bind(r *http.Request) error {
 	if a.Username == "" {
 		return exception.NewMissingRequired("username")
 	}
@@ -23,14 +23,14 @@ func (a *AuthSignInRequest) Bind(r *http.Request) error {
 	return nil
 }
 
-type AuthSignUpRequest struct {
+type AuthRegisterRequest struct {
 	Username        string `json:"username"`
 	Email           string `json:"email"`
 	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirm_password"`
 }
 
-func (a *AuthSignUpRequest) Bind(r *http.Request) error {
+func (a *AuthRegisterRequest) Bind(r *http.Request) error {
 	var err error
 	if a.Username == "" {
 		return exception.NewMissingRequired("username")
