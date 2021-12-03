@@ -1,6 +1,7 @@
 package exception
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -12,6 +13,7 @@ type ErrResponse struct {
 }
 
 func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
+	fmt.Println("tst", e)
 	if e.Code != 0 {
 		render.Status(r, e.Code)
 	} else {

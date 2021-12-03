@@ -3,7 +3,14 @@ package exception
 import (
 	"errors"
 	"fmt"
+	"net/http"
 )
+
+func ErrValidationIfNeeded(err error) {
+	if err != nil {
+		panic(ErrResponse{Code: http.StatusUnprocessableEntity, Message: err.Error()})
+	}
+}
 
 func NewMissingRequired(field string) error {
 	msg := fmt.Sprintf("%s wajib diisi.", field)

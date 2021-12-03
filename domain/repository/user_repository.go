@@ -12,7 +12,7 @@ import (
 type UserRepository interface {
 	FindUserByUsername(username string) (user entity.UserEntity, err error)
 	FindUserByUsernameOrEmail(username string, email string) (user entity.UserEntity, err error)
-	Insert(user *entity.UserEntity)
+	Insert(user entity.UserEntity)
 }
 
 func NewUserRepository(database *pgxpool.Pool) UserRepository {
@@ -63,7 +63,7 @@ func (repo *userRepositoryImpl) FindUserByUsername(username string) (user entity
 	}
 }
 
-func (repo *userRepositoryImpl) Insert(user *entity.UserEntity) {
+func (repo *userRepositoryImpl) Insert(user entity.UserEntity) {
 	ctx, cancel := database.NewDatabaseContext()
 	defer cancel()
 

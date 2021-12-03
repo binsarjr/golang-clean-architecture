@@ -28,7 +28,7 @@ func NewAuthenticateAppInterface(userRepo *repository.UserRepository, tokenAuth 
 	return &authenticateAppInterfaceImpl{UserRepo: *userRepo, tokenAuth: tokenAuth}
 }
 
-func (app *authenticateAppInterfaceImpl) CreateJWTToken(user *entity.UserEntity) (token string) {
+func (app *authenticateAppInterfaceImpl) CreateJWTToken(user entity.UserEntity) (token string) {
 	_, tokenString, _ := app.tokenAuth.Encode(map[string]interface{}{
 		"user_id": user.UserId,
 	})
@@ -54,7 +54,7 @@ func (app *authenticateAppInterfaceImpl) Login(request *model.AuthLoginRequest) 
 		panic(exception.ErrResponse{Code: http.StatusUnauthorized, Message: "username atau password tidak ditemukan"})
 	}
 
-	tokenString := app.CreateJWTToken(&userauth)
+	tokenString := app.CreateJWTToken(userauth)
 	response = app.response(tokenString)
 	return response
 }
@@ -86,9 +86,9 @@ func (app *authenticateAppInterfaceImpl) Register(request *model.AuthRegisterReq
 		Email:    request.Email,
 		Password: string(hashedPassword),
 	}
-	app.UserRepo.Insert(&userauth)
+	app.UserRepo.Insert(userauth)
 
-	tokenString := app.CreateJWTToken(&userauth)
+	tokenString := app.CreateJWTToken(userauth)
 	response = app.response(tokenString)
 	return response
 }

@@ -18,8 +18,8 @@ type Authenticate struct {
 	tokenAuth       *jwtauth.JWTAuth
 }
 
-func NewAuthenticate(authenticateApp application.AuthenticateAppInterface, userRepo *repository.UserRepository, tokenAuth *jwtauth.JWTAuth) Authenticate {
-	return Authenticate{AuthenticateApp: authenticateApp, tokenAuth: tokenAuth, UserRepo: *userRepo}
+func NewAuthenticate(authenticateApp *application.AuthenticateAppInterface, userRepo *repository.UserRepository, tokenAuth *jwtauth.JWTAuth) Authenticate {
+	return Authenticate{AuthenticateApp: *authenticateApp, tokenAuth: tokenAuth, UserRepo: *userRepo}
 }
 
 func (handler *Authenticate) Login(w http.ResponseWriter, r *http.Request) {
