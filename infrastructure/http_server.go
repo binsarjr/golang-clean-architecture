@@ -82,18 +82,27 @@ func (app *HTTPServer) Start() {
 func NewHTTPServer() *HTTPServer {
 	configuration := config.New()
 
-	pool_max, err := strconv.Atoi(configuration.GetOrDefault("POSTGRESS_POOL_MAX", "20"))
+	pool_max, err := strconv.Atoi(configuration.GetOrDefault("POSTGRESS_POOL_MAX", "5"))
 	exception.PanicIfNeeded(err)
-	pool_min, err := strconv.Atoi(configuration.GetOrDefault("POSTGRESS_POOL_MIN", "5"))
+	pool_min, err := strconv.Atoi(configuration.GetOrDefault("POSTGRESS_POOL_MIN", "2"))
+	exception.PanicIfNeeded(err)
+
+	dbport, err := strconv.Atoi(configuration.Get("POSTGRESS_PORT"))
 	exception.PanicIfNeeded(err)
 
 	return &HTTPServer{
 		router:        chi.NewRouter(),
 		configuration: configuration,
 		database: database.NewPostgres(database.Postgres{
-			Uri:      configuration.Get("POSTGRESS_URI"),
 			MaxConns: int32(pool_max),
 			MinConns: int32(pool_min),
+			Connection: database.PostgresConnection{
+				Host:     configuration.Get("POSTGRESS_HOST"),
+				User:     configuration.Get("POSTGRESS_USER"),
+				Password: configuration.Get("POSTGRESS_PASSWORD"),
+				Database: configuration.Get("POSTGRESS_DATABASE"),
+				Port:     uint16(dbport),
+			},
 		}),
 		tokenAuth: jwtauth.New("HS256", []byte(configuration.Get("JWT_SECRETKEY")), nil),
 	}

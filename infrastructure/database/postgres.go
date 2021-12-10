@@ -12,15 +12,29 @@ import (
 )
 
 type Postgres struct {
-	config   *pgxpool.Config
-	Uri      string
-	MaxConns int32
-	MinConns int32
+	config     *pgxpool.Config
+	Uri        string
+	MaxConns   int32
+	MinConns   int32
+	Connection PostgresConnection
 }
 
-func (pgsl *Postgres) ParseConfig(dsn string) {
-	poolConfig, err := pgxpool.ParseConfig(dsn)
+type PostgresConnection struct {
+	User     string
+	Password string
+	Host     string
+	Port     uint16
+	Database string
+}
+
+func (pgsl *Postgres) ParseConfig(conn PostgresConnection) {
+	poolConfig, err := pgxpool.ParseConfig("")
 	exception.PanicIfNeeded(err)
+	poolConfig.ConnConfig.Host = conn.Host
+	poolConfig.ConnConfig.User = conn.User
+	poolConfig.ConnConfig.Password = conn.Password
+	poolConfig.ConnConfig.Port = conn.Port
+	poolConfig.ConnConfig.Database = conn.Database
 	pgsl.config = poolConfig
 }
 
@@ -43,7 +57,7 @@ func (pgsl *Postgres) Connect() *pgxpool.Pool {
 }
 
 func NewPostgres(postgres Postgres) *pgxpool.Pool {
-	postgres.ParseConfig(postgres.Uri)
+	postgres.ParseConfig(postgres.Connection)
 	postgres.SetLogger(log15adapter.NewLogger(log.New("module", "pgx")))
 
 	if postgres.MaxConns != 0 {
