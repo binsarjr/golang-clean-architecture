@@ -50,7 +50,7 @@ func (app *HTTPServer) Start() {
 	authInterfaces := interfaces.NewAuthenticate(&authAppInterface, &userRepository, app.tokenAuth)
 
 	app.router.Group(func(r chi.Router) {
-		r.Use(jwtauth.Verify(app.tokenAuth))
+		r.Use(jwtauth.Verifier(app.tokenAuth))
 
 		// Handle valid / invalid tokens. In this example, we use
 		// the provided authenticator middleware, but you can write your
