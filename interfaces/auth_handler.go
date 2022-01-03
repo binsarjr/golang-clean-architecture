@@ -25,7 +25,7 @@ func NewAuthenticate(authenticateApp *application.AuthenticateAppInterface, user
 func (handler *Authenticate) Login(w http.ResponseWriter, r *http.Request) {
 	request := &model.AuthLoginRequest{}
 
-	validation.NewValidation(w, r, request)
+	validation.NewValidation(r, request)
 
 	response := handler.AuthenticateApp.Login(request)
 	render.Render(w, r, &response)
@@ -33,7 +33,7 @@ func (handler *Authenticate) Login(w http.ResponseWriter, r *http.Request) {
 
 func (handler *Authenticate) Register(w http.ResponseWriter, r *http.Request) {
 	request := &model.AuthRegisterRequest{}
-	validation.NewValidation(w, r, request)
+	validation.NewValidation(r, request)
 
 	response := handler.AuthenticateApp.Register(request)
 

@@ -42,15 +42,12 @@ func (app *HTTPServer) Start() {
 
 	// Setup Repository
 	userRepository := repository.NewUserRepository(app.database)
-	wilayahRepositoru := repository.NewWilayahRepository(app.database)
 
 	// Setup Application Services
 	authAppInterface := application.NewAuthenticateAppInterface(&userRepository, app.tokenAuth)
-	wilayahAppInterface := application.NewWilayahAppInterface(&wilayahRepositoru)
 
 	// Setup Interface
 	authInterfaces := interfaces.NewAuthenticate(&authAppInterface, &userRepository, app.tokenAuth)
-	wilayahInterfaces := interfaces.NewWilayah(&wilayahAppInterface)
 
 	app.router.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verify(app.tokenAuth))
@@ -60,15 +57,6 @@ func (app *HTTPServer) Start() {
 		// own very easily, look at the Authenticator method in jwtauth.go
 		// and tweak it, its not scary.
 		r.Use(jwtauth.Authenticator)
-	})
-
-	app.router.Route("/master", func(r chi.Router) {
-		r.Route("/wilayah", func(r chi.Router) {
-			r.Get("/", wilayahInterfaces.GetProvinsi)
-			r.Get("/{provId}", wilayahInterfaces.GetKota)
-			r.Get("/{provId}.{kotaId}", wilayahInterfaces.GetKecamatan)
-			r.Get("/{provId}.{kotaId}.{kecId}", wilayahInterfaces.GetKelurahan)
-		})
 	})
 
 	// authentication routes
